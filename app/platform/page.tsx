@@ -45,6 +45,8 @@ import {
   Flame,
   Star
 } from "lucide-react"
+import { AnalyticsDashboard } from "@/components/analytics-dashboard"
+import { RealTimeDashboard } from "@/components/real-time-dashboard"
 
 // Mock data interfaces
 interface BrandMention {
@@ -405,161 +407,11 @@ export default function PlatformPage() {
 
           {/* Dashboard Tab */}
           <TabsContent value="dashboard" className="space-y-6">
-            {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Mentions</CardTitle>
-                  <Target className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalMentions.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">+12% from last week</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Brand Health</CardTitle>
-                  <Heart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.brandHealth.toFixed(1)}%</div>
-                  <Progress value={stats.brandHealth} className="mt-2" />
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Share of Voice</CardTitle>
-                  <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{stats.shareOfVoice.toFixed(1)}%</div>
-                  <p className="text-xs text-muted-foreground">vs competitors</p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Avg Sentiment</CardTitle>
-                  <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className={`text-2xl font-bold ${getSentimentColor(stats.averageSentiment)}`}>
-                    {stats.averageSentiment.toFixed(2)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">-1 to +1 scale</p>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Recent Mentions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5" />
-                    Recent Brand Mentions
-                  </CardTitle>
-                  <CardDescription>Latest mentions across all platforms</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-4">
-                      {mentions.slice(0, 5).map((mention) => (
-                        <div key={mention.id} className="border rounded-lg p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">{getPlatformIcon(mention.platform)}</span>
-                              <span className="font-medium">{mention.author.displayName}</span>
-                              {mention.author.verified && <Badge variant="secondary">✓</Badge>}
-                            </div>
-                            <Badge variant="outline" className={getSentimentColor(mention.sentiment.score)}>
-                              {mention.sentiment.emotion}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-2">{mention.content.text}</p>
-                          <div className="flex items-center justify-between text-xs text-muted-foreground">
-                            <div className="flex items-center gap-3">
-                              <span className="flex items-center gap-1">
-                                <Heart className="h-3 w-3" />
-                                {mention.metrics.likes}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Share className="h-3 w-3" />
-                                {mention.metrics.shares}
-                              </span>
-                            </div>
-                            <span>{mention.timestamp.toLocaleTimeString()}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-
-              {/* Active Alerts */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Bell className="h-5 w-5" />
-                    Active Alerts
-                  </CardTitle>
-                  <CardDescription>Alerts requiring immediate attention</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[400px]">
-                    <div className="space-y-4">
-                      {alerts.filter(alert => !alert.acknowledged).map((alert) => (
-                        <div key={alert.id} className={`border rounded-lg p-4 ${
-                          alert.severity === 'critical' ? 'border-red-200 bg-red-50' : 
-                          alert.severity === 'high' ? 'border-orange-200 bg-orange-50' : 
-                          'border-yellow-200 bg-yellow-50'
-                        }`}>
-                          <div className="flex items-start justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <AlertTriangle className="h-4 w-4" />
-                              <span className="font-medium">{alert.title}</span>
-                            </div>
-                            <Badge variant={
-                              alert.severity === 'critical' ? 'destructive' : 
-                              alert.severity === 'high' ? 'destructive' : 'secondary'
-                            }>
-                              {alert.severity.toUpperCase()}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground mb-3">{alert.description}</p>
-                          <div className="flex items-center justify-between">
-                            <div className="text-xs text-muted-foreground">
-                              {alert.messageCount} messages • Avg sentiment: {alert.averageSentiment.toFixed(2)}
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline"
-                              onClick={() => handleAcknowledgeAlert(alert.id)}
-                            >
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              Acknowledge
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
-                      
-                      {alerts.filter(alert => !alert.acknowledged).length === 0 && (
-                        <div className="text-center py-8">
-                          <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                          <h3 className="text-lg font-semibold mb-2">All Clear!</h3>
-                          <p className="text-muted-foreground">No active alerts at the moment.</p>
-                        </div>
-                      )}
-                    </div>
-                  </ScrollArea>
-                </CardContent>
-              </Card>
-            </div>
+            <RealTimeDashboard 
+              mentions={mentions} 
+              messages={messages} 
+              isLive={isMonitoring} 
+            />
           </TabsContent>
 
           {/* Brand Mentions Tab */}
@@ -832,68 +684,20 @@ export default function PlatformPage() {
 
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Platform Distribution</CardTitle>
-                  <CardDescription>Mentions by platform</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {["twitter", "instagram", "facebook", "linkedin"].map((platform) => {
-                      const count = mentions.filter(m => m.platform === platform).length
-                      const percentage = mentions.length > 0 ? (count / mentions.length) * 100 : 0
-                      return (
-                        <div key={platform} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="text-lg">{getPlatformIcon(platform)}</span>
-                              <span className="font-medium capitalize">{platform}</span>
-                            </div>
-                            <span className="text-sm font-medium">{percentage.toFixed(1)}%</span>
-                          </div>
-                          <Progress value={percentage} className="h-2" />
-                        </div>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Sentiment Distribution</CardTitle>
-                  <CardDescription>Overall sentiment breakdown</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { label: "Positive", color: "text-green-600", filter: (s: number) => s > 0.1 },
-                      { label: "Neutral", color: "text-yellow-600", filter: (s: number) => Math.abs(s) <= 0.1 },
-                      { label: "Negative", color: "text-red-600", filter: (s: number) => s < -0.1 }
-                    ].map(({ label, color, filter }) => {
-                      const count = mentions.filter(m => filter(m.sentiment.score)).length
-                      const percentage = mentions.length > 0 ? (count / mentions.length) * 100 : 0
-                      return (
-                        <div key={label} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className={`font-medium ${color}`}>{label}</span>
-                            <span className="text-sm font-medium">{percentage.toFixed(1)}%</span>
-                          </div>
-                          <Progress value={percentage} className="h-2" />
-                        </div>
-                      )
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Export Data</CardTitle>
-                  <CardDescription>Download analytics data</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <AnalyticsDashboard 
+              mentions={mentions} 
+              messages={messages} 
+              stats={stats} 
+            />
+            
+            {/* Export Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Export Data</CardTitle>
+                <CardDescription>Download analytics data in various formats</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Button 
                     onClick={() => handleExportData('csv')} 
                     variant="outline" 
@@ -918,9 +722,9 @@ export default function PlatformPage() {
                     <Download className="h-4 w-4 mr-2" />
                     Export as PDF
                   </Button>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* Settings Tab */}
